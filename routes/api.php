@@ -26,6 +26,8 @@ Route::middleware('api.token')->group(function () {
     Route::get('/pension-plans', [PensionPlanController::class, 'index']);
     Route::get('/contributions', [ContributionController::class, 'index']);
     Route::post('/contributions', [ContributionController::class, 'store']);
+    Route::post('/contributions/initialize-payment', [ContributionController::class, 'initializePayment']);
+    Route::post('/contributions/verify-payment', [ContributionController::class, 'verifyPayment']);
     Route::get('/withdrawals', [WithdrawalController::class, 'index']);
     Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
