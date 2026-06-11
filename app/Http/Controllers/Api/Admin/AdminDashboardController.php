@@ -25,10 +25,12 @@ class AdminDashboardController extends Controller
     {
         return response()->json([
             'total_pension_balance' => Contribution::where('status', 'successful')->sum('amount') - Withdrawal::where('status', 'approved')->sum('amount'),
-            'monthly_contributions' => Contribution::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount'),
+            'monthly_contributions' => Contribution::where('status', 'successful')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount'),
             'pending_withdrawals' => Withdrawal::where('status', 'pending')->count(),
             'active_workers' => User::where('role', 'worker')->count(),
-            'most_used_plan' => PensionPlan::withCount('contributions')->orderByDesc('contributions_count')->first(),
+            'most_used_plan' => PensionPlan::withCount([
+                'contributions' => fn ($query) => $query->where('status', 'successful'),
+            ])->orderByDesc('contributions_count')->first(),
         ]);
     }
 }

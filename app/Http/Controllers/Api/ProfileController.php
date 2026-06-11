@@ -35,11 +35,15 @@ class ProfileController extends Controller
         $user = $request->user();
         $totalContributions = $user->contributions()->where('status', 'successful')->sum('amount');
         $approvedWithdrawals = $user->withdrawals()->where('status', 'approved')->sum('amount');
+        $pendingWithdrawals = $user->withdrawals()->where('status', 'pending')->sum('amount');
+        $balance = $totalContributions - $approvedWithdrawals;
 
         return response()->json([
-            'balance' => $totalContributions - $approvedWithdrawals,
+            'balance' => $balance,
+            'available_balance' => $balance - $pendingWithdrawals,
             'total_contributions' => $totalContributions,
             'approved_withdrawals' => $approvedWithdrawals,
+            'pending_withdrawal_amount' => $pendingWithdrawals,
             'pending_withdrawals' => $user->withdrawals()->where('status', 'pending')->count(),
             'recent_contributions' => $user->contributions()->with('pensionPlan')->latest()->limit(5)->get(),
         ]);

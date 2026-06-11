@@ -26,9 +26,21 @@ class WithdrawalController extends Controller
             'account_name' => ['required', 'string', 'max:150'],
         ]);
 
+        $user = $request->user();
+        $totalContributions = $user->contributions()->where('status', 'successful')->sum('amount');
+        $approvedWithdrawals = $user->withdrawals()->where('status', 'approved')->sum('amount');
+        $pendingWithdrawals = $user->withdrawals()->where('status', 'pending')->sum('amount');
+        $availableBalance = $totalContributions - $approvedWithdrawals - $pendingWithdrawals;
+
+        if ((float) $data['amount'] > (float) $availableBalance) {
+            return response()->json([
+                'message' => 'Withdrawal amount cannot exceed your available balance.',
+            ], 422);
+        }
+
         $withdrawal = Withdrawal::create([
             ...$data,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'status' => 'pending',
         ]);
 
