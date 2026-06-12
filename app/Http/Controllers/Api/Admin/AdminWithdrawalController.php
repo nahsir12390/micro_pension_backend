@@ -18,6 +18,12 @@ class AdminWithdrawalController extends Controller
 
     public function approve(Request $request, Withdrawal $withdrawal): JsonResponse
     {
+        if ($withdrawal->status !== 'pending') {
+            return response()->json([
+                'message' => 'Only pending withdrawal requests can be approved.',
+            ], 422);
+        }
+
         $withdrawal->update([
             'status' => 'approved',
             'reviewed_at' => now(),
@@ -32,6 +38,12 @@ class AdminWithdrawalController extends Controller
 
     public function reject(Request $request, Withdrawal $withdrawal): JsonResponse
     {
+        if ($withdrawal->status !== 'pending') {
+            return response()->json([
+                'message' => 'Only pending withdrawal requests can be rejected.',
+            ], 422);
+        }
+
         $withdrawal->update([
             'status' => 'rejected',
             'reviewed_at' => now(),
